@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<title>EduTrack — Developer Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{
+  --bg:#0f172a;
+  --card:#1e293b;
+  --card2:#283548;
+  --border:#334155;
+  --text:#f1f5f9;
+  --muted:#94a3b8;
+  --accent:#6366f1;
+  --accent2:#818cf8;
+  --success:#10b981;
+  --danger:#ef4444;
+  --warning:#f59e0b;
+  --radius:14px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;overflow-x:hidden;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* LOCK SCREEN */
+#lockScreen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px;}
+#lockScreen.hide{display:none;}
+.lock-card{background:var(--card);border-radius:var(--radius);padding:32px 28px;width:100%;max-width:380px;border:1px solid var(--border);box-shadow:var(--shadow);}
+.lock-icon{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:26px;color:#fff;}
+.lock-title{text-align:center;font-size:1.3rem;font-weight:800;margin-bottom:4px;}
+.lock-sub{text-align:center;font-size:0.8rem;color:var(--muted);margin-bottom:24px;}
+.lock-back{text-align:center;margin-top:16px;font-size:0.78rem;color:var(--muted);}
+.lock-back a{color:var(--accent2);text-decoration:none;}
+
+/* MAIN PANEL */
+#panel{display:none;min-height:100vh;}
+.top-bar{background:var(--card);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.top-bar-title{display:flex;align-items:center;gap:10px;}
+.top-bar-title i{color:var(--accent2);font-size:20px;}
+.top-bar-title div{font-weight:700;font-size:1rem;line-height:1;}
+.top-bar-title small{font-size:0.65rem;color:var(--muted);font-weight:400;letter-spacing:1px;display:block;text-transform:uppercase;}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:0.82rem;text-decoration:none;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;transition:color 0.2s;}
+.back-btn:hover{color:var(--text);}
+
+.content{padding:20px;max-width:680px;margin:0 auto;}
+
+/* CARDS */
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:22px;margin-bottom:16px;}
+.card-title{font-size:0.95rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.card-title i{color:var(--accent2);}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.stat-box{background:var(--card2);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--border);}
+.stat-val{font-size:1.8rem;font-weight:800;color:var(--accent2);}
+.stat-lbl{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+
+/* FORMS */
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:0.75rem;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-control{width:100%;padding:11px 14px;border-radius:9px;border:1.5px solid var(--border);background:var(--card2);color:var(--text);font-family:inherit;font-size:0.9rem;outline:none;transition:border-color 0.2s;}
+.form-control:focus{border-color:var(--accent2);}
+.form-control::placeholder{color:var(--muted);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.pwd-wrap{position:relative;}
+.pwd-wrap .form-control{padding-right:42px;}
+.pwd-toggle{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.95rem;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;border-radius:9px;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,0.3);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,0.4);}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;}
+.btn-warning{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;}
+.btn-success{background:linear-gradient(135deg,#10b981,#059669);color:#fff;}
+.btn-ghost{background:var(--card2);color:var(--text);border:1px solid var(--border);}
+.btn-sm{padding:7px 13px;font-size:0.78rem;}
+.btn-block{width:100%;}
+
+/* SCHOOL LIST */
+.school-item{background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+.school-avatar{width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0;}
+.school-info{flex:1;min-width:0;}
+.school-name{font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.school-meta{font-size:0.72rem;color:var(--muted);margin-top:2px;}
+.school-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:0.68rem;font-weight:600;}
+.badge-success{background:rgba(16,185,129,0.15);color:#10b981;}
+.badge-warning{background:rgba(245,158,11,0.15);color:#f59e0b;}
+.badge-info{background:rgba(99,102,241,0.15);color:#818cf8;}
+
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+
+/* DANGER ZONE */
+.danger-zone{border:1.5px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;background:rgba(239,68,68,0.05);}
+.danger-title{color:var(--danger);font-weight:700;font-size:0.88rem;display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+
+/* TOAST */
+#devToast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 22px;border-radius:30px;font-size:0.85rem;font-weight:600;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;max-width:92vw;border:1px solid var(--border);}
+#devToast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#devToast.success{background:#10b981;border-color:#059669;}
+#devToast.error{background:#ef4444;border-color:#dc2626;}
+#devToast.warning{background:#f59e0b;border-color:#d97706;color:#1a2332;}
+
+/* EDIT MODAL */
+#editModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center;padding:20px;}
+#editModal.show{display:flex;}
+.modal-box{background:var(--card);border-radius:var(--radius);width:100%;max-width:420px;padding:24px;border:1px solid var(--border);}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-hdr-title{font-weight:700;font-size:1rem;}
+.modal-close{background:var(--card2);border:1px solid var(--border);border-radius:7px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.9rem;}
+
+/* CONFIRM */
+#confirmModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:600;align-items:center;justify-content:center;padding:20px;}
+#confirmModal.show{display:flex;}
+
+/* ONLINE DOT */
+.dot{width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;margin-right:6px;}
+.dot.off{background:var(--danger);}
+
+/* EMPTY */
+.empty{text-align:center;padding:32px 20px;color:var(--muted);}
+.empty i{font-size:2.5rem;opacity:0.3;margin-bottom:10px;}
+
+/* PASSWORD CHANGE SECTION */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.setting-row:last-child{border-bottom:none;}
+.setting-label{font-size:0.85rem;font-weight:600;}
+.setting-sub{font-size:0.72rem;color:var(--muted);}
+
+@media(max-width:380px){.form-row{grid-template-columns:1fr;}.stats-row{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="devToast"></div>
+
+<!-- LOCK SCREEN -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-icon"><i class="fas fa-terminal"></i></div>
+    <div class="lock-title">Developer Panel</div>
+    <div class="lock-sub">Super admin access required</div>
+    <div class="form-group">
+      <label class="form-label">Developer Password</label>
+      <div class="pwd-wrap">
+        <input type="password" class="form-control" id="devPwdInput" placeholder="Enter developer password" onkeydown="if(event.key==='Enter')unlockPanel()">
+        <button class="pwd-toggle" onclick="togglePwd('devPwdInput',this)"><i class="fas fa-eye"></i></button>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="unlockPanel()">
+      <i class="fas fa-unlock"></i> Unlock Panel
+    </button>
+    <div class="lock-back"><a href="index.html"><i class="fas fa-arrow-left"></i> Back to EduTrack</a></div>
+  </div>
+</div>
+
+<!-- MAIN PANEL -->
+<div id="panel">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-title">
+      <i class="fas fa-terminal"></i>
+      <div>Developer Panel<small>Super Admin · EduTrack</small></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:0.72rem;color:var(--muted);"><span class="dot" id="onlineDot"></span><span id="onlineTxt">Online</span></span>
+      <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> App</a>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-box"><div class="stat-val" id="statSchools">—</div><div class="stat-lbl">Schools</div></div>
+      <div class="stat-box"><div class="stat-val" id="statStudents">—</div><div class="stat-lbl">Total Students</div></div>
+      <div class="stat-box"><div class="stat-val" id="statTeachers">—</div><div class="stat-lbl">Total Teachers</div></div>
+    </div>
+
+    <!-- REGISTERED SCHOOLS -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-school"></i> Registered Schools</div>
+      <div id="schoolsList"><div class="empty"><i class="fas fa-spinner fa-spin"></i><p style="margin-top:8px;">Loading schools...</p></div></div>
+    </div>
+
+    <!-- REGISTER NEW SCHOOL -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-plus-circle"></i> Register New School</div>
+      <div class="form-group">
+        <label class="form-label">School Name</label>
+        <input type="text" class="form-control" id="newSchoolName" placeholder="e.g. Nairobi Academy">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">School Code <span style="font-weight:400;opacity:0.6;text-transform:none;">(unique ID)</span></label>
+          <input type="text" class="form-control" id="newSchoolCode" placeholder="e.g. NBI_001" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'').toUpperCase()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Admin Password</label>
+          <div class="pwd-wrap">
+            <input type="password" class="form-control" id="newSchoolPwd" placeholder="Min 4 chars">
+            <button class="pwd-toggle" onclick="togglePwd('newSchoolPwd',this)"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-bottom:14px;">Code: letters, numbers & underscores only. Example: <b>SCHOOL_01</b></div>
+      <button class="btn btn-primary btn-block" onclick="registerSchool()">
+        <i class="fas fa-school"></i> Register School
+      </button>
+    </div>
+
+    <!-- SWITCH SCHOOL (set device to a school) -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-exchange-alt"></i> Switch Active School</div>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:14px;">Set which school this device opens when launching EduTrack. Currently: <b id="currentSchoolBadge" style="color:var(--accent2);">None</b></p>
+      <div id="switchSchoolList"></div>
+    </div>
+
+    <!-- DEVELOPER PASSWORD -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-key"></i> Developer Password</div>
+      <div class="form-group">
+        <label class="form-label">Current Password</label>
+        <div class="pwd-wrap">
+          <input type="password" class="form-control" id="curDevPwd" placeholder="Current developer password">
+          <button class="pwd-toggle" onclick="togglePwd('curDevPwd',this)"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <div class="pwd-wrap">
+            <input type="password" class="form-control" id="newDevPwd" placeholder="New password">
+            <button class="pwd-toggle" onclick="togglePwd('newDevPwd',this)"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirm</label>
+          <div class="pwd-wrap">
+            <input type="password" class="form-control" id="confDevPwd" placeholder="Confirm">
+            <button class="pwd-toggle" onclick="togglePwd('confDevPwd',this)"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-warning btn-block" onclick="changeDevPwd()">
+        <i class="fas fa-key"></i> Update Developer Password
+      </button>
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div class="danger-zone" style="margin-bottom:40px;">
+      <div class="danger-title"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:12px;">Deleting a school permanently removes all its data from Firebase — students, teachers, classes, attendance, leave outs. This cannot be undone.</p>
+      <div id="deleteSchoolList"></div>
+    </div>
+
+    <div style="text-align:center;padding:16px 0 8px;font-size:0.7rem;color:var(--muted);">
+      <i class="fas fa-code"></i> EduTrack Developer Panel · Powered by Mr. Saisi Nyongesa Sammy
+    </div>
+  </div>
+</div>
+
+<!-- EDIT SCHOOL MODAL -->
+<div id="editModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div class="modal-hdr-title">Edit School</div>
+      <button class="modal-close" onclick="closeEdit()"><i class="fas fa-times"></i></button>
+    </div>
+    <input type="hidden" id="editSchoolId">
+    <div class="form-group">
+      <label class="form-label">School Name</label>
+      <input type="text" class="form-control" id="editSchoolName" placeholder="School name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Reset Admin Password <span style="font-weight:400;opacity:0.6;text-transform:none;">(leave blank to keep)</span></label>
+      <div class="pwd-wrap">
+        <input type="password" class="form-control" id="editSchoolPwd" placeholder="New admin password">
+        <button class="pwd-toggle" onclick="togglePwd('editSchoolPwd',this)"><i class="fas fa-eye"></i></button>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-block" onclick="saveEditSchool()">
+      <i class="fas fa-save"></i> Save Changes
+    </button>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div class="modal-hdr-title" id="confirmTitle">Confirm</div>
+    </div>
+    <p id="confirmMsg" style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;line-height:1.5;"></p>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-danger" id="confirmYes" onclick="doConfirm()"><i class="fas fa-check"></i> Confirm</button>
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
+  doc, getDoc, setDoc, getDocs, deleteDoc,
+  collection, writeBatch, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ── Firebase (same project as main app) ─────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyAnA97WKgTNl1D9KgPR6WkslIzE4wes_Qc",
+  authDomain:        "register-d4674.firebaseapp.com",
+  projectId:         "register-d4674",
+  storageBucket:     "register-d4674.firebasestorage.app",
+  messagingSenderId: "1015267499156",
+  appId:             "1:1015267499156:web:cb03874a30021adc406881",
+  measurementId:     "G-WLP9YTLELR"
+};
+const fireApp = initializeApp(firebaseConfig);
+let db;
+try {
+  db = initializeFirestore(fireApp, {
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+  });
+} catch(e) {
+  const { getFirestore } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+  db = getFirestore(fireApp);
+}
+
+// ── Refs ─────────────────────────────────────────────────────────
+const SCHOOLS_COL = () => collection(db, 'schools');
+const SCHOOL_DOC  = (id) => doc(db, 'schools', id);
+const SETTINGS    = (id) => doc(db, `schools/${id}/meta`, 'settings');
+const TEACHERS    = (id) => collection(db, `schools/${id}/teachers`);
+const STUDENTS    = (id) => collection(db, `schools/${id}/students`);
+const SUBCOLLS    = ['meta','teachers','classes','students','attendance','leaveOuts'];
+
+// ── localStorage helpers ──────────────────────────────────────────
+const LS = {
+  get(k){try{return JSON.parse(localStorage.getItem('et_'+k));}catch{return null;}},
+  set(k,v){localStorage.setItem('et_'+k,JSON.stringify(v));},
+  remove(k){localStorage.removeItem('et_'+k);}
+};
+
+// ── Developer password (stored in localStorage; change from panel) ─
+const DEV_PWD_KEY = 'devPwd';
+const DEFAULT_DEV_PWD = 'dev@EduTrack2025';
+
+function getDevPwd(){ return LS.get(DEV_PWD_KEY) || DEFAULT_DEV_PWD; }
+
+// ── State ─────────────────────────────────────────────────────────
+let schools = [];
+let pendingConfirmFn = null;
+
+// ══════════════════════════════════════════════════════════════════
+// LOCK SCREEN
+// ══════════════════════════════════════════════════════════════════
+window.unlockPanel = function(){
+  const pwd = document.getElementById('devPwdInput').value;
+  if(pwd === getDevPwd()){
+    document.getElementById('lockScreen').classList.add('hide');
+    document.getElementById('panel').style.display='block';
+    init();
+  } else {
+    toast('Incorrect developer password','error');
+    document.getElementById('devPwdInput').value='';
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+async function init(){
+  updateOnline();
+  window.addEventListener('online',  updateOnline);
+  window.addEventListener('offline', updateOnline);
+  await loadSchools();
+  updateCurrentSchoolBadge();
+}
+
+function updateOnline(){
+  const dot = document.getElementById('onlineDot');
+  const txt = document.getElementById('onlineTxt');
+  if(navigator.onLine){ dot.className='dot'; txt.textContent='Online'; }
+  else { dot.className='dot off'; txt.textContent='Offline'; }
+}
+
+async function loadSchools(){
+  try{
+    const snap = await getDocs(SCHOOLS_COL());
+    schools = snap.docs.map(d=>({id:d.id,...d.data()}));
+    schools.sort((a,b)=>(a.name||a.id).localeCompare(b.name||b.id));
+    renderSchoolsList();
+    renderSwitchList();
+    renderDeleteList();
+    await loadStats();
+  }catch(e){
+    console.error(e);
+    document.getElementById('schoolsList').innerHTML=`<div class="empty"><p>Error loading schools. ${navigator.onLine?'Check Firestore permissions.':'You are offline.'}</p></div>`;
+  }
+}
+
+async function loadStats(){
+  document.getElementById('statSchools').textContent = schools.length;
+  let totalStudents=0, totalTeachers=0;
+  await Promise.all(schools.map(async s=>{
+    try{
+      const [stu,tch]=await Promise.all([getDocs(STUDENTS(s.id)),getDocs(TEACHERS(s.id))]);
+      totalStudents+=stu.size;
+      totalTeachers+=Math.max(0,tch.size-1); // exclude ADMIN
+    }catch(e){}
+  }));
+  document.getElementById('statStudents').textContent=totalStudents;
+  document.getElementById('statTeachers').textContent=totalTeachers;
+}
+
+function renderSchoolsList(){
+  const el=document.getElementById('schoolsList');
+  if(!schools.length){
+    el.innerHTML=`<div class="empty"><i class="fas fa-school"></i><p style="margin-top:8px;">No schools registered yet.</p></div>`;
+    return;
+  }
+  el.innerHTML=schools.map(s=>`
+    <div class="school-item">
+      <div class="school-avatar"><i class="fas fa-school"></i></div>
+      <div class="school-info">
+        <div class="school-name">${s.name||s.id}</div>
+        <div class="school-meta">Code: <b>${s.id}</b> &nbsp;·&nbsp; Registered: ${s.createdAt?.toDate?.()?.toLocaleDateString('en-KE')||'—'}</div>
+      </div>
+      <div class="school-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openEdit('${s.id}','${(s.name||'').replace(/'/g,'')}')" title="Edit"><i class="fas fa-edit"></i></button>
+      </div>
+    </div>`).join('');
+}
+
+function renderSwitchList(){
+  const el=document.getElementById('switchSchoolList');
+  if(!schools.length){el.innerHTML=`<p style="font-size:0.82rem;color:var(--muted);">No schools registered.</p>`;return;}
+  const current=LS.get('currentSchoolId');
+  el.innerHTML=schools.map(s=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-weight:600;font-size:0.88rem;">${s.name||s.id}</div>
+        <div style="font-size:0.7rem;color:var(--muted);">Code: ${s.id}</div>
+      </div>
+      ${current===s.id
+        ? `<span class="badge badge-success"><i class="fas fa-check"></i> Active</span>`
+        : `<button class="btn btn-primary btn-sm" onclick="switchToSchool('${s.id}')"><i class="fas fa-sign-in-alt"></i> Select</button>`
+      }
+    </div>`).join('');
+}
+
+function renderDeleteList(){
+  const el=document.getElementById('deleteSchoolList');
+  if(!schools.length){el.innerHTML=`<p style="font-size:0.82rem;color:var(--muted);">No schools to delete.</p>`;return;}
+  el.innerHTML=schools.map(s=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(239,68,68,0.15);">
+      <div>
+        <div style="font-weight:600;font-size:0.88rem;">${s.name||s.id}</div>
+        <div style="font-size:0.7rem;color:var(--muted);">Code: ${s.id}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="confirmDeleteSchool('${s.id}','${(s.name||s.id).replace(/'/g,'')}')">
+        <i class="fas fa-trash"></i> Delete
+      </button>
+    </div>`).join('');
+}
+
+function updateCurrentSchoolBadge(){
+  const id=LS.get('currentSchoolId');
+  const el=document.getElementById('currentSchoolBadge');
+  if(el) el.textContent=id||'None';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// REGISTER SCHOOL
+// ══════════════════════════════════════════════════════════════════
+window.registerSchool = async function(){
+  const name = document.getElementById('newSchoolName').value.trim();
+  const code = document.getElementById('newSchoolCode').value.trim();
+  const pwd  = document.getElementById('newSchoolPwd').value.trim();
+  if(!name)                             { toast('Enter school name','error'); return; }
+  if(!code||code.length<3)              { toast('Code must be at least 3 characters','error'); return; }
+  if(!/^[A-Z0-9_]+$/.test(code))       { toast('Code: letters, numbers, underscores only','error'); return; }
+  if(!pwd||pwd.length<4)                { toast('Admin password must be at least 4 characters','error'); return; }
+  if(schools.find(s=>s.id===code))      { toast('School code already exists — choose another','error'); return; }
+
+  try{
+    // 1. School registry entry
+    await setDoc(SCHOOL_DOC(code), { name, createdAt: serverTimestamp() });
+    // 2. School settings (with admin password)
+    await setDoc(SETTINGS(code), {
+      schoolName:name, schoolMotto:'', adminPassword:pwd,
+      termSettings:{name:'',start:'',end:''},
+      schoolDays:['monday','tuesday','wednesday','thursday','friday'],
+      updatedAt: serverTimestamp()
+    });
+    // 3. Default ADMIN teacher
+    await setDoc(doc(db,`schools/${code}/teachers`,'ADMIN'), {
+      name:'Administrator', role:'admin', pwd, class:'', stream:'',
+      updatedAt: serverTimestamp()
+    });
+    document.getElementById('newSchoolName').value='';
+    document.getElementById('newSchoolCode').value='';
+    document.getElementById('newSchoolPwd').value='';
+    toast(`"${name}" registered successfully!`,'success');
+    await loadSchools();
+  }catch(e){
+    console.error(e);
+    toast(navigator.onLine?'Error registering school — check Firestore rules':'You are offline','error');
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════
+// SWITCH ACTIVE SCHOOL (sets device localStorage)
+// ══════════════════════════════════════════════════════════════════
+window.switchToSchool = function(schoolId){
+  const school = schools.find(s=>s.id===schoolId);
+  openConfirm(
+    'Switch Active School',
+    `Set this device to use "${school?.name||schoolId}"? The EduTrack app will load this school on next open.`,
+    ()=>{
+      LS.set('currentSchoolId', schoolId);
+      // Clear any remembered teacher from the old school
+      const old=LS.get('currentSchoolId');
+      if(old && old!==schoolId) LS.remove('rememberedTeacher_'+old);
+      toast(`Switched to "${school?.name||schoolId}"! Open EduTrack to continue.`,'success');
+      updateCurrentSchoolBadge();
+      renderSwitchList();
+    }
+  );
+};
+
+// ══════════════════════════════════════════════════════════════════
+// EDIT SCHOOL
+// ══════════════════════════════════════════════════════════════════
+window.openEdit = function(id, name){
+  document.getElementById('editSchoolId').value=id;
+  document.getElementById('editSchoolName').value=name;
+  document.getElementById('editSchoolPwd').value='';
+  document.getElementById('editModal').classList.add('show');
+};
+window.closeEdit = function(){ document.getElementById('editModal').classList.remove('show'); };
+
+window.saveEditSchool = async function(){
+  const id   = document.getElementById('editSchoolId').value;
+  const name = document.getElementById('editSchoolName').value.trim();
+  const pwd  = document.getElementById('editSchoolPwd').value.trim();
+  if(!name){ toast('Enter a school name','error'); return; }
+  try{
+    // Update registry name
+    await setDoc(SCHOOL_DOC(id), { name, updatedAt: serverTimestamp() }, { merge: true });
+    // Update settings name
+    await setDoc(SETTINGS(id), { schoolName: name, updatedAt: serverTimestamp() }, { merge: true });
+    // Reset admin password if provided
+    if(pwd){
+      if(pwd.length<4){ toast('Password must be at least 4 characters','error'); return; }
+      await setDoc(SETTINGS(id), { adminPassword: pwd, updatedAt: serverTimestamp() }, { merge: true });
+      // Also update ADMIN teacher password
+      await setDoc(doc(db,`schools/${id}/teachers`,'ADMIN'), { pwd, updatedAt: serverTimestamp() }, { merge: true });
+    }
+    closeEdit();
+    toast('School updated!','success');
+    await loadSchools();
+  }catch(e){
+    console.error(e);
+    toast('Error updating school','error');
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════
+// DELETE SCHOOL (full cascade wipe of all subcollections)
+// ══════════════════════════════════════════════════════════════════
+window.confirmDeleteSchool = function(id, name){
+  openConfirm(
+    'Delete School',
+    `⚠️ Permanently delete "${name}" (${id}) and ALL its data — students, teachers, classes, attendance, leave outs? This CANNOT be undone.`,
+    () => deleteSchool(id, name)
+  );
+};
+
+async function deleteSchool(id, name){
+  toast('Deleting school data...','warning');
+  try{
+    const batch = writeBatch(db);
+    // Delete all subcollection docs
+    for(const sub of SUBCOLLS){
+      const col=collection(db,`schools/${id}/${sub}`);
+      const snap=await getDocs(col);
+      snap.docs.forEach(d=>batch.delete(d.ref));
+    }
+    // Delete school registry doc
+    batch.delete(SCHOOL_DOC(id));
+    await batch.commit();
+    // If this was the active school on this device, clear it
+    if(LS.get('currentSchoolId')===id){
+      LS.remove('currentSchoolId');
+      LS.remove('rememberedTeacher_'+id);
+      updateCurrentSchoolBadge();
+    }
+    toast(`"${name}" deleted permanently`,'success');
+    await loadSchools();
+  }catch(e){
+    console.error(e);
+    toast('Error deleting school — check connection','error');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// DEVELOPER PASSWORD CHANGE
+// ══════════════════════════════════════════════════════════════════
+window.changeDevPwd = function(){
+  const cur  = document.getElementById('curDevPwd').value;
+  const nw   = document.getElementById('newDevPwd').value;
+  const conf = document.getElementById('confDevPwd').value;
+  if(cur !== getDevPwd()){ toast('Current password incorrect','error'); return; }
+  if(nw.length<6){ toast('New password must be at least 6 characters','error'); return; }
+  if(nw!==conf){ toast('Passwords do not match','error'); return; }
+  LS.set(DEV_PWD_KEY, nw);
+  document.getElementById('curDevPwd').value='';
+  document.getElementById('newDevPwd').value='';
+  document.getElementById('confDevPwd').value='';
+  toast('Developer password updated!','success');
+};
+
+// ══════════════════════════════════════════════════════════════════
+// CONFIRM MODAL
+// ══════════════════════════════════════════════════════════════════
+function openConfirm(title, msg, fn){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  pendingConfirmFn=fn;
+  document.getElementById('confirmModal').classList.add('show');
+}
+function closeConfirm(){
+  document.getElementById('confirmModal').classList.remove('show');
+  pendingConfirmFn=null;
+}
+window.doConfirm = function(){ if(pendingConfirmFn){ pendingConfirmFn(); pendingConfirmFn=null; } closeConfirm(); };
+window.closeConfirm = closeConfirm;
+
+// Close modal on overlay click
+document.getElementById('confirmModal').addEventListener('click', e=>{ if(e.target===document.getElementById('confirmModal')) closeConfirm(); });
+document.getElementById('editModal').addEventListener('click',   e=>{ if(e.target===document.getElementById('editModal'))   closeEdit(); });
+
+// ══════════════════════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════════════════════
+window.togglePwd = function(id,btn){
+  const el=document.getElementById(id); if(!el) return;
+  const show=el.type==='password';
+  el.type=show?'text':'password';
+  btn.innerHTML=`<i class="fas fa-eye${show?'-slash':''}"></i>`;
+};
+
+function toast(msg,type=''){
+  const t=document.getElementById('devToast');
+  t.textContent=msg; t.className='show'+(type?' '+type:'');
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>{ t.className=''; }, 3000);
+}
+</script>
+</body>
+</html>
