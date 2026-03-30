@@ -7,6 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.svg">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.svg">
 <title>EduTrack - Attendance System</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -639,12 +644,36 @@ const FB_CFG = {
 
 // Safe Firebase init
 const fireApp = getApps().length ? getApp() : initializeApp(FB_CFG);
+// ALWAYS use persistentLocalCache — this is what enables offline data storage in IndexedDB.
+// getFirestore() without persistentLocalCache gives NO offline storage.
 let db;
-try { db = getFirestore(fireApp); }
-catch(e){
-  try { db = initializeFirestore(fireApp,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})}); }
-  catch(e2){ try { db = initializeFirestore(fireApp,{}); } catch(e3){ console.error('DB init failed',e3); } }
-}
+(function initDB(){
+  // First check if a Firestore instance already exists (e.g. same session as developer.html)
+  // If so, reuse it — it already has the correct persistence settings.
+  try {
+    // Try to get existing instance — throws if none exists
+    db = getFirestore(fireApp);
+    // Verify it has persistence by checking internal type (not exposed, so we re-init safely)
+    // We can't check if it has persistence, so always try to create a fresh one.
+    // If already initialized, initializeFirestore will throw "already exists" — caught below.
+    db = initializeFirestore(fireApp, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    });
+  } catch(e) {
+    if (e.code === 'failed-precondition' || e.message?.includes('already exists') || e.message?.includes('already been started')) {
+      // Firestore already initialized — get the existing instance
+      try { db = getFirestore(fireApp); } catch(e2) { console.error('getFirestore failed:', e2); }
+    } else {
+      // Persistence not supported (private browsing etc) — try without multi-tab manager
+      try { db = initializeFirestore(fireApp, { localCache: persistentLocalCache() }); }
+      catch(e3) {
+        // Last resort — basic Firestore (no offline persistence but app still works online)
+        try { db = initializeFirestore(fireApp, {}); }
+        catch(e4) { console.error('All Firestore init attempts failed:', e4); }
+      }
+    }
+  }
+})();
 
 // Collection refs — all scoped under schools/{schoolId}
 let schoolId = null;
@@ -1674,7 +1703,28 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 // Service Worker
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+if('serviceWorker' in navigator){
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('./sw.js');
+      console.log('[EduTrack] SW registered, scope:', reg.scope);
+      // Check for updates every time the app loads
+      reg.update();
+      // If a new SW is waiting, activate it immediately
+      if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          if(newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            newSW.postMessage({type:'SKIP_WAITING'});
+          }
+        });
+      });
+    } catch(e) {
+      console.warn('[EduTrack] SW registration failed:', e);
+    }
+  });
+}
 </script>
 </body>
 </html>
