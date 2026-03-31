@@ -7,6 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="icon-192.svg">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.svg">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.svg">
 <title>EduTrack - Attendance System</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -639,12 +644,46 @@ const FB_CFG = {
 
 // Safe Firebase init
 const fireApp = getApps().length ? getApp() : initializeApp(FB_CFG);
+// Firestore init — MUST use initializeFirestore with persistentLocalCache FIRST.
+// Never call getFirestore() before this — it creates a memory-only instance that
+// cannot be upgraded to persistent later in the same session.
 let db;
-try { db = getFirestore(fireApp); }
-catch(e){
-  try { db = initializeFirestore(fireApp,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})}); }
-  catch(e2){ try { db = initializeFirestore(fireApp,{}); } catch(e3){ console.error('DB init failed',e3); } }
-}
+(function initDB(){
+  // Try most capable mode first, degrade gracefully
+  try {
+    // Best: persistent + multi-tab (PWA installed, Chrome/Edge on Android)
+    db = initializeFirestore(fireApp, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    });
+    console.log('[Firestore] Persistent multi-tab cache OK');
+    return;
+  } catch(e1) {}
+
+  try {
+    // Good: persistent single-tab (standard browser, one tab)
+    db = initializeFirestore(fireApp, {
+      localCache: persistentLocalCache()
+    });
+    console.log('[Firestore] Persistent single-tab cache OK');
+    return;
+  } catch(e2) {}
+
+  try {
+    // Fallback: already initialized elsewhere (developer.html in same session)
+    // In this case getFirestore() returns whatever instance already exists
+    db = getFirestore(fireApp);
+    console.warn('[Firestore] Reusing existing instance (persistence unknown)');
+    return;
+  } catch(e3) {}
+
+  try {
+    // Last resort: memory only (private browsing / unsupported browser)
+    db = initializeFirestore(fireApp, {});
+    console.warn('[Firestore] Memory-only cache — no offline support');
+  } catch(e4) {
+    console.error('[Firestore] All init attempts failed:', e4);
+  }
+})();
 
 // Collection refs — all scoped under schools/{schoolId}
 let schoolId = null;
@@ -726,28 +765,54 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 async function bootstrapSchool(){
+  // With persistentLocalCache, Firestore reads work offline from IndexedDB.
+  // We still attempt to load — if offline, Firestore returns cached data silently.
   try{
-    const s=await fsGet(REF.settings());
-    if(s) Object.assign(cache.settings,s);
-    else await fsSet(REF.settings(),cache.settings);
-    cache.classes  = await fsList(REF.classes());
-    cache.students = await fsList(REF.students());
-    cache.teachers = await fsList(REF.teachers());
-    if(!cache.teachers.find(t=>t._id==='ADMIN')){
+    // Load all data — these resolve from IndexedDB when offline (if persistence is set up)
+    const [settingsSnap, classesSnap, studentsSnap, teachersSnap, attSnap, loSnap] =
+      await Promise.all([
+        fsGet(REF.settings()),
+        fsList(REF.classes()),
+        fsList(REF.students()),
+        fsList(REF.teachers()),
+        fsGet(REF.attDay(today())),
+        fsList(REF.leaveOuts()),
+      ]);
+
+    if(settingsSnap) Object.assign(cache.settings, settingsSnap);
+    else if(navigator.onLine) await fsSet(REF.settings(), cache.settings);
+
+    cache.classes   = classesSnap;
+    cache.students  = studentsSnap;
+    cache.teachers  = teachersSnap;
+
+    if(!cache.teachers.find(t=>t._id==='ADMIN') && navigator.onLine){
       await fsSet(REF.teacherDoc('ADMIN'),{name:'Administrator',role:'admin',pwd:'admin123',class:'',stream:''});
       cache.teachers.push({_id:'ADMIN',name:'Administrator',role:'admin',pwd:'admin123',class:'',stream:''});
     }
-    const todayAtt=await fsGet(REF.attDay(today()));
-    if(todayAtt) cache.attendance[today()]=todayAtt.records||{};
-    cache.leaveOuts=(await fsList(REF.leaveOuts())).sort((a,b)=>a.date<b.date?1:-1);
-    cache.ready=true;
+
+    if(attSnap) cache.attendance[today()] = attSnap.records || {};
+    cache.leaveOuts = loSnap.sort((a,b)=>a.date<b.date?1:-1);
+
+    cache.ready = true;
     startListeners();
+
+    if(!navigator.onLine){
+      toast('Offline — showing cached data', 'warning');
+    }
   }catch(e){
-    console.error('Bootstrap error:',e.code,e.message);
-    cache.ready=true;
-    const msg=e.code==='permission-denied'?'Firestore permission denied':!navigator.onLine?'Offline - data will sync':'Could not reach database';
-    toast(msg,e.code==='permission-denied'?'error':'warning');
-    setTimeout(()=>{if(schoolId)startListeners();},5000);
+    console.error('Bootstrap error:', e.code, e.message);
+    cache.ready = true;
+    if(e.code === 'permission-denied'){
+      toast('Firestore permission denied — check rules', 'error');
+    } else if(!navigator.onLine){
+      toast('Offline — cached data loaded', 'warning');
+      // Still start listeners — they will serve from IndexedDB cache
+      startListeners();
+    } else {
+      toast('Could not reach database — retrying...', 'warning');
+      setTimeout(()=>{ if(schoolId) startListeners(); }, 4000);
+    }
   }
   startApp();
 }
@@ -1674,7 +1739,28 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 // Service Worker
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+if('serviceWorker' in navigator){
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('./sw.js');
+      console.log('[EduTrack] SW registered, scope:', reg.scope);
+      // Check for updates every time the app loads
+      reg.update();
+      // If a new SW is waiting, activate it immediately
+      if(reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          if(newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            newSW.postMessage({type:'SKIP_WAITING'});
+          }
+        });
+      });
+    } catch(e) {
+      console.warn('[EduTrack] SW registration failed:', e);
+    }
+  });
+}
 </script>
 </body>
 </html>
