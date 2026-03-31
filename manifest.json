@@ -1,20 +1,28 @@
 {
-  "name": "EduTrack Attendance System",
+  "name": "EduTrack - Attendance System",
   "short_name": "EduTrack",
-  "description": "Student Attendance Management System - Powered by Mr. Saisi Nyongesa Sammy",
+  "description": "School attendance tracking and management system",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0f4c81",
   "theme_color": "#0f4c81",
-  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f4c81'/><text y='.9em' font-size='80' x='10'>🎓</text></svg>",
+      "src": "icon-192.svg",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ],
   "categories": ["education", "productivity"],
   "lang": "en",
-  "scope": "./"
+  "dir": "ltr"
 }
