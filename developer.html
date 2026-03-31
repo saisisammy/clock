@@ -4,378 +4,312 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="theme-color" content="#0f172a">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="description" content="EduTrack Developer Panel — Super Admin School Management">
-<link rel="manifest" href="dev-manifest.json">
-<title>EduTrack Dev Panel</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>EduTrack — Developer Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root{
-  --bg:#0a0f1e;--surface:#111827;--surface2:#1a2332;--surface3:#243044;
-  --border:#1e2d45;--border2:#2d4060;--text:#e2e8f0;--muted:#64748b;--dim:#3d526b;
-  --accent:#6366f1;--accent2:#818cf8;--accent3:#a5b4fc;
-  --green:#10b981;--red:#ef4444;--yellow:#f59e0b;--cyan:#06b6d4;--purple:#8b5cf6;
-  --radius:14px;--radius-sm:9px;
-  --mono:"JetBrains Mono",monospace;--sans:"Plus Jakarta Sans",sans-serif;
+  --bg:#0f172a;
+  --card:#1e293b;
+  --card2:#283548;
+  --border:#334155;
+  --text:#f1f5f9;
+  --muted:#94a3b8;
+  --accent:#6366f1;
+  --accent2:#818cf8;
+  --success:#10b981;
+  --danger:#ef4444;
+  --warning:#f59e0b;
+  --radius:14px;
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{min-height:100%;font-family:var(--sans);background:var(--bg);color:var(--text);overflow-x:hidden;}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(99,102,241,.08) 0%,transparent 60%),
-  radial-gradient(ellipse 40% 30% at 80% 80%,rgba(6,182,212,.05) 0%,transparent 60%);}
+html,body{min-height:100%;overflow-x:hidden;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-/* LOCK */
-#lockScreen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg);}
-#lockScreen.hidden{display:none;}
-.lock-wrap{width:100%;max-width:400px;position:relative;z-index:1;animation:fadeUp .5s ease both;}
-.lock-logo{width:72px;height:72px;border-radius:20px;margin:0 auto 24px;
-  background:linear-gradient(135deg,var(--accent),var(--purple));
-  display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff;
-  box-shadow:0 0 20px rgba(99,102,241,.15),0 8px 32px rgba(99,102,241,.3);}
-.lock-title{font-size:1.5rem;font-weight:800;text-align:center;letter-spacing:-.5px;}
-.lock-sub{font-size:.8rem;color:var(--muted);text-align:center;margin:6px 0 28px;font-family:var(--mono);}
-.lock-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;
-  box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);}
-.lock-footer{text-align:center;margin-top:20px;font-size:.72rem;color:var(--dim);font-family:var(--mono);}
-.lock-footer a{color:var(--accent3);text-decoration:none;}
+/* LOCK SCREEN */
+#lockScreen{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;padding:24px;}
+#lockScreen.hide{display:none;}
+.lock-card{background:var(--card);border-radius:var(--radius);padding:32px 28px;width:100%;max-width:380px;border:1px solid var(--border);box-shadow:var(--shadow);}
+.lock-icon{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:26px;color:#fff;}
+.lock-title{text-align:center;font-size:1.3rem;font-weight:800;margin-bottom:4px;}
+.lock-sub{text-align:center;font-size:0.8rem;color:var(--muted);margin-bottom:24px;}
+.lock-back{text-align:center;margin-top:16px;font-size:0.78rem;color:var(--muted);}
+.lock-back a{color:var(--accent2);text-decoration:none;}
 
-/* PANEL */
-#panel{display:none;min-height:100vh;position:relative;z-index:1;}
-#panel.visible{display:block;}
+/* MAIN PANEL */
+#panel{display:none;min-height:100vh;}
+.top-bar{background:var(--card);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.top-bar-title{display:flex;align-items:center;gap:10px;}
+.top-bar-title i{color:var(--accent2);font-size:20px;}
+.top-bar-title div{font-weight:700;font-size:1rem;line-height:1;}
+.top-bar-title small{font-size:0.65rem;color:var(--muted);font-weight:400;letter-spacing:1px;display:block;text-transform:uppercase;}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:0.82rem;text-decoration:none;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;transition:color 0.2s;}
+.back-btn:hover{color:var(--text);}
 
-/* TOPBAR */
-.topbar{position:sticky;top:0;z-index:100;height:60px;
-  background:rgba(10,15,30,.88);backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;padding:0 20px;}
-.topbar-brand{display:flex;align-items:center;gap:10px;}
-.tb-icon{width:34px;height:34px;border-radius:9px;
-  background:linear-gradient(135deg,var(--accent),var(--purple));
-  display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;}
-.tb-title{font-weight:700;font-size:.95rem;line-height:1;}
-.tb-title small{font-size:.6rem;color:var(--muted);font-family:var(--mono);display:block;margin-top:1px;}
-.topbar-right{display:flex;align-items:center;gap:10px;}
-.sdot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);}
-.sdot.off{background:var(--red);box-shadow:0 0 6px var(--red);}
-.blink{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;padding:6px 12px;color:var(--muted);font-size:.78rem;font-weight:600;text-decoration:none;transition:all .2s;}
-.blink:hover{color:var(--text);border-color:var(--border2);}
-.lockbtn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;
-  color:var(--muted);font-family:var(--sans);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;}
-.lockbtn:hover{color:var(--red);border-color:var(--red);}
-
-/* CONTENT */
-.content{padding:20px;max-width:660px;margin:0 auto;padding-bottom:60px;}
-
-/* STATS */
-.stats-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
-.stat-chip{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 12px;text-align:center;transition:border-color .2s;}
-.stat-chip:hover{border-color:var(--border2);}
-.stat-num{font-size:1.9rem;font-weight:800;color:var(--accent3);font-family:var(--mono);line-height:1;}
-.stat-lbl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:4px;}
-
-/* SECTION */
-.sec{margin-bottom:20px;}
-.sec-title{font-size:.65rem;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;
-  margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-.sec-title::after{content:"";flex:1;height:1px;background:var(--border);}
+.content{padding:20px;max-width:680px;margin:0 auto;}
 
 /* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;transition:border-color .2s;}
-.card:hover{border-color:var(--border2);}
-.card-title{font-size:.88rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:22px;margin-bottom:16px;}
+.card-title{font-size:0.95rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .card-title i{color:var(--accent2);}
 
-/* SCHOOL ROWS */
-.s-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface2);
-  border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;transition:border-color .2s;}
-.s-row:hover{border-color:var(--border2);}
-.s-row:last-child{margin-bottom:0;}
-.s-avatar{width:42px;height:42px;border-radius:10px;flex-shrink:0;
-  background:linear-gradient(135deg,var(--accent),var(--purple));
-  display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;}
-.s-info{flex:1;min-width:0;}
-.s-name{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.s-meta{font-size:.7rem;color:var(--muted);font-family:var(--mono);margin-top:2px;}
-.s-acts{display:flex;gap:6px;flex-shrink:0;}
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.stat-box{background:var(--card2);border-radius:10px;padding:14px;text-align:center;border:1px solid var(--border);}
+.stat-val{font-size:1.8rem;font-weight:800;color:var(--accent2);}
+.stat-lbl{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
 
 /* FORMS */
-.fg{margin-bottom:14px;}
-.fl{display:block;font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
-.fc{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);
-  border-radius:var(--radius-sm);color:var(--text);font-family:var(--sans);font-size:.875rem;outline:none;transition:border-color .2s,box-shadow .2s;}
-.fc:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(99,102,241,.12);}
-.fc::placeholder{color:var(--dim);}
-.fhint{font-size:.68rem;color:var(--dim);margin-top:5px;font-family:var(--mono);}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.pw{position:relative;}
-.pw .fc{padding-right:42px;}
-.pe{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:.9rem;transition:color .2s;}
-.pe:hover{color:var(--text);}
+.form-group{margin-bottom:14px;}
+.form-label{display:block;font-size:0.75rem;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.form-control{width:100%;padding:11px 14px;border-radius:9px;border:1.5px solid var(--border);background:var(--card2);color:var(--text);font-family:inherit;font-size:0.9rem;outline:none;transition:border-color 0.2s;}
+.form-control:focus{border-color:var(--accent2);}
+.form-control::placeholder{color:var(--muted);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.pwd-wrap{position:relative;}
+.pwd-wrap .form-control{padding-right:42px;}
+.pwd-toggle{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.95rem;}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
-  padding:10px 18px;border-radius:var(--radius-sm);font-family:var(--sans);font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:all .18s;}
-.btn-p{background:linear-gradient(135deg,var(--accent),var(--purple));color:#fff;box-shadow:0 4px 14px rgba(99,102,241,.25);}
-.btn-p:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,.35);}
-.btn-d{background:linear-gradient(135deg,var(--red),#dc2626);color:#fff;}
-.btn-d:hover{transform:translateY(-1px);}
-.btn-w{background:linear-gradient(135deg,var(--yellow),#d97706);color:#0f172a;}
-.btn-g{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-.btn-g:hover{border-color:var(--border2);}
-.btn-c{background:linear-gradient(135deg,var(--cyan),#0891b2);color:#fff;}
-.btn-sm{padding:7px 13px;font-size:.78rem;border-radius:7px;}
-.btn-bl{width:100%;}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 18px;border-radius:9px;font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;}
+.btn-primary{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;box-shadow:0 4px 14px rgba(99,102,241,0.3);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,0.4);}
+.btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;}
+.btn-warning{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;}
+.btn-success{background:linear-gradient(135deg,#10b981,#059669);color:#fff;}
+.btn-ghost{background:var(--card2);color:var(--text);border:1px solid var(--border);}
+.btn-sm{padding:7px 13px;font-size:0.78rem;}
+.btn-block{width:100%;}
 
-/* BADGES */
-.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:.67rem;font-weight:700;}
-.b-ok{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.2);}
-.b-inf{background:rgba(99,102,241,.15);color:var(--accent3);border:1px solid rgba(99,102,241,.2);}
+/* SCHOOL LIST */
+.school-item{background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;}
+.school-avatar{width:44px;height:44px;border-radius:11px;background:linear-gradient(135deg,#6366f1,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;flex-shrink:0;}
+.school-info{flex:1;min-width:0;}
+.school-name{font-weight:700;font-size:0.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.school-meta{font-size:0.72rem;color:var(--muted);margin-top:2px;}
+.school-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:0.68rem;font-weight:600;}
+.badge-success{background:rgba(16,185,129,0.15);color:#10b981;}
+.badge-warning{background:rgba(245,158,11,0.15);color:#f59e0b;}
+.badge-info{background:rgba(99,102,241,0.15);color:#818cf8;}
+
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
 
 /* DANGER ZONE */
-.dz{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius);padding:20px;}
-.dz-title{color:var(--red);font-weight:700;font-size:.88rem;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.dz-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(239,68,68,.1);}
-.dz-row:last-child{border-bottom:none;padding-bottom:0;}
-
-/* SWITCH */
-.sw-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
-.sw-row:last-child{border-bottom:none;padding-bottom:0;}
-.sw-info strong{display:block;font-size:.88rem;font-weight:600;}
-.sw-info small{font-size:.7rem;color:var(--muted);font-family:var(--mono);}
-
-/* EMPTY */
-.empty{text-align:center;padding:28px 16px;color:var(--dim);}
-.empty i{font-size:2.2rem;opacity:.2;display:block;margin-bottom:10px;}
-.empty p{font-size:.85rem;}
-
-/* LOADING */
-.ld{text-align:center;padding:22px;color:var(--muted);font-size:.85rem;}
-
-/* OVERLAY / MODAL */
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;display:none;
-  align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
-.ov.show{display:flex;}
-.mb{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-  width:100%;max-width:430px;padding:26px;box-shadow:0 24px 60px rgba(0,0,0,.6);animation:fadeUp .25s ease both;}
-.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-.mh-title{font-weight:700;font-size:1rem;}
-.mx{width:30px;height:30px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;transition:all .2s;}
-.mx:hover{color:var(--text);border-color:var(--border2);}
+.danger-zone{border:1.5px solid rgba(239,68,68,0.3);border-radius:12px;padding:16px;background:rgba(239,68,68,0.05);}
+.danger-title{color:var(--danger);font-weight:700;font-size:0.88rem;display:flex;align-items:center;gap:8px;margin-bottom:12px;}
 
 /* TOAST */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);
-  background:var(--surface2);color:var(--text);padding:10px 22px;border-radius:30px;
-  font-size:.83rem;font-weight:600;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;
-  border:1px solid var(--border);white-space:nowrap;max-width:92vw;text-align:center;}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-#toast.ok{background:var(--green);border-color:#059669;color:#fff;}
-#toast.err{background:var(--red);border-color:#dc2626;color:#fff;}
-#toast.warn{background:var(--yellow);border-color:#d97706;color:#0f172a;}
+#devToast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 22px;border-radius:30px;font-size:0.85rem;font-weight:600;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap;max-width:92vw;border:1px solid var(--border);}
+#devToast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#devToast.success{background:#10b981;border-color:#059669;}
+#devToast.error{background:#ef4444;border-color:#dc2626;}
+#devToast.warning{background:#f59e0b;border-color:#d97706;color:#1a2332;}
 
-/* ANIMATIONS */
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
-@keyframes spin{to{transform:rotate(360deg);}}
-.spin{animation:spin 1s linear infinite;display:inline-block;}
+/* EDIT MODAL */
+#editModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:500;align-items:center;justify-content:center;padding:20px;}
+#editModal.show{display:flex;}
+.modal-box{background:var(--card);border-radius:var(--radius);width:100%;max-width:420px;padding:24px;border:1px solid var(--border);}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.modal-hdr-title{font-weight:700;font-size:1rem;}
+.modal-close{background:var(--card2);border:1px solid var(--border);border-radius:7px;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.9rem;}
 
-/* SCROLLBAR */
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+/* CONFIRM */
+#confirmModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:600;align-items:center;justify-content:center;padding:20px;}
+#confirmModal.show{display:flex;}
 
-@media(max-width:420px){.frow{grid-template-columns:1fr;}.stats-strip{grid-template-columns:1fr 1fr;}}
-@media(min-width:640px){.content{padding:28px;}}
+/* ONLINE DOT */
+.dot{width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;margin-right:6px;}
+.dot.off{background:var(--danger);}
+
+/* EMPTY */
+.empty{text-align:center;padding:32px 20px;color:var(--muted);}
+.empty i{font-size:2.5rem;opacity:0.3;margin-bottom:10px;}
+
+/* PASSWORD CHANGE SECTION */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.setting-row:last-child{border-bottom:none;}
+.setting-label{font-size:0.85rem;font-weight:600;}
+.setting-sub{font-size:0.72rem;color:var(--muted);}
+
+@media(max-width:380px){.form-row{grid-template-columns:1fr;}.stats-row{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
 <body>
 
-<div id="toast"></div>
+<!-- TOAST -->
+<div id="devToast"></div>
 
 <!-- LOCK SCREEN -->
 <div id="lockScreen">
-  <div class="lock-wrap">
-    <div class="lock-logo"><i class="fas fa-terminal"></i></div>
+  <div class="lock-card">
+    <div class="lock-icon"><i class="fas fa-terminal"></i></div>
     <div class="lock-title">Developer Panel</div>
-    <div class="lock-sub">EduTrack &middot; Super Admin Access</div>
-    <div class="lock-card">
-      <div class="fg">
-        <label class="fl"><i class="fas fa-key" style="margin-right:5px;"></i>Developer Password</label>
-        <div class="pw">
-          <input type="password" class="fc" id="devPwdInput" placeholder="Enter password&hellip;"
-            autocomplete="current-password" onkeydown="if(event.key==='Enter')unlock()">
-          <button class="pe" onclick="eye('devPwdInput',this)"><i class="fas fa-eye"></i></button>
-        </div>
+    <div class="lock-sub">Super admin access required</div>
+    <div class="form-group">
+      <label class="form-label">Developer Password</label>
+      <div class="pwd-wrap">
+        <input type="password" class="form-control" id="devPwdInput" placeholder="Enter developer password" onkeydown="if(event.key==='Enter')unlockPanel()">
+        <button class="pwd-toggle" onclick="togglePwd('devPwdInput',this)"><i class="fas fa-eye"></i></button>
       </div>
-      <button class="btn btn-p btn-bl" id="unlockBtn" onclick="unlock()" style="font-size:.9rem;padding:13px;">
-        <i class="fas fa-unlock-alt"></i> Unlock Panel
-      </button>
     </div>
-    <div class="lock-footer">
-      <a href="index.html"><i class="fas fa-arrow-left"></i> Back to EduTrack</a>
-      &nbsp;&middot;&nbsp; powered by Mr. Saisi Nyongesa Sammy
-    </div>
+    <button class="btn btn-primary btn-block" onclick="unlockPanel()">
+      <i class="fas fa-unlock"></i> Unlock Panel
+    </button>
+    <div class="lock-back"><a href="index.html"><i class="fas fa-arrow-left"></i> Back to EduTrack</a></div>
   </div>
 </div>
 
 <!-- MAIN PANEL -->
 <div id="panel">
-  <header class="topbar">
-    <div class="topbar-brand">
-      <div class="tb-icon"><i class="fas fa-terminal"></i></div>
-      <div class="tb-title">Developer Panel<small>SUPER ADMIN &middot; EDUTRACK</small></div>
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-title">
+      <i class="fas fa-terminal"></i>
+      <div>Developer Panel<small>Super Admin · EduTrack</small></div>
     </div>
-    <div class="topbar-right">
-      <span id="sdot" class="sdot" title="Online"></span>
-      <a href="index.html" class="blink"><i class="fas fa-arrow-left"></i> App</a>
-      <button class="lockbtn" onclick="lockPanel()"><i class="fas fa-lock"></i> Lock</button>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:0.72rem;color:var(--muted);"><span class="dot" id="onlineDot"></span><span id="onlineTxt">Online</span></span>
+      <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> App</a>
     </div>
-  </header>
+  </div>
 
   <div class="content">
-    <div class="stats-strip">
-      <div class="stat-chip"><div class="stat-num" id="sN">&#8212;</div><div class="stat-lbl">Schools</div></div>
-      <div class="stat-chip"><div class="stat-num" id="sStu">&#8212;</div><div class="stat-lbl">Students</div></div>
-      <div class="stat-chip"><div class="stat-num" id="sTch">&#8212;</div><div class="stat-lbl">Teachers</div></div>
+    <!-- STATS -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-box"><div class="stat-val" id="statSchools">—</div><div class="stat-lbl">Schools</div></div>
+      <div class="stat-box"><div class="stat-val" id="statStudents">—</div><div class="stat-lbl">Total Students</div></div>
+      <div class="stat-box"><div class="stat-val" id="statTeachers">—</div><div class="stat-lbl">Total Teachers</div></div>
     </div>
 
-    <div class="sec">
-      <div class="sec-title"><i class="fas fa-school"></i> Registered Schools</div>
-      <div class="card"><div id="listWrap"><div class="ld"><i class="fas fa-circle-notch spin"></i> Loading&hellip;</div></div></div>
+    <!-- REGISTERED SCHOOLS -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-school"></i> Registered Schools</div>
+      <div id="schoolsList"><div class="empty"><i class="fas fa-spinner fa-spin"></i><p style="margin-top:8px;">Loading schools...</p></div></div>
     </div>
 
-    <div class="sec">
-      <div class="sec-title"><i class="fas fa-plus-circle"></i> Register New School</div>
-      <div class="card">
-        <div class="fg">
-          <label class="fl">School Name</label>
-          <input type="text" class="fc" id="newName" placeholder="e.g. Nairobi Academy">
-        </div>
-        <div class="frow">
-          <div class="fg">
-            <label class="fl">School Code</label>
-            <input type="text" class="fc" id="newCode" placeholder="e.g. NBI_001"
-              oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'').toUpperCase()">
-            <div class="fhint">Letters &middot; numbers &middot; underscores &middot; min 3</div>
-          </div>
-          <div class="fg">
-            <label class="fl">Admin Password</label>
-            <div class="pw">
-              <input type="password" class="fc" id="newPwd" placeholder="Min 4 chars">
-              <button class="pe" onclick="eye('newPwd',this)"><i class="fas fa-eye"></i></button>
-            </div>
-          </div>
-        </div>
-        <button class="btn btn-p btn-bl" onclick="registerSchool()">
-          <i class="fas fa-school"></i> Register School
-        </button>
+    <!-- REGISTER NEW SCHOOL -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-plus-circle"></i> Register New School</div>
+      <div class="form-group">
+        <label class="form-label">School Name</label>
+        <input type="text" class="form-control" id="newSchoolName" placeholder="e.g. Nairobi Academy">
       </div>
-    </div>
-
-    <div class="sec">
-      <div class="sec-title"><i class="fas fa-exchange-alt"></i> Switch Active School</div>
-      <div class="card">
-        <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
-          Sets which school this device opens in EduTrack.
-          Currently: <b id="activeBadge" style="color:var(--accent3);font-family:var(--mono);">None</b>
-        </p>
-        <div id="switchWrap"></div>
-      </div>
-    </div>
-
-    <div class="sec">
-      <div class="sec-title"><i class="fas fa-key"></i> Developer Password</div>
-      <div class="card">
-        <div class="fg">
-          <label class="fl">Current Password</label>
-          <div class="pw">
-            <input type="password" class="fc" id="curPwd" placeholder="Current password">
-            <button class="pe" onclick="eye('curPwd',this)"><i class="fas fa-eye"></i></button>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">School Code <span style="font-weight:400;opacity:0.6;text-transform:none;">(unique ID)</span></label>
+          <input type="text" class="form-control" id="newSchoolCode" placeholder="e.g. NBI_001" oninput="this.value=this.value.replace(/[^a-zA-Z0-9_]/g,'').toUpperCase()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Admin Password</label>
+          <div class="pwd-wrap">
+            <input type="password" class="form-control" id="newSchoolPwd" placeholder="Min 4 chars">
+            <button class="pwd-toggle" onclick="togglePwd('newSchoolPwd',this)"><i class="fas fa-eye"></i></button>
           </div>
         </div>
-        <div class="frow">
-          <div class="fg">
-            <label class="fl">New Password</label>
-            <div class="pw">
-              <input type="password" class="fc" id="np" placeholder="New (min 6)">
-              <button class="pe" onclick="eye('np',this)"><i class="fas fa-eye"></i></button>
-            </div>
-          </div>
-          <div class="fg">
-            <label class="fl">Confirm</label>
-            <div class="pw">
-              <input type="password" class="fc" id="cp" placeholder="Repeat">
-              <button class="pe" onclick="eye('cp',this)"><i class="fas fa-eye"></i></button>
-            </div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-bottom:14px;">Code: letters, numbers & underscores only. Example: <b>SCHOOL_01</b></div>
+      <button class="btn btn-primary btn-block" onclick="registerSchool()">
+        <i class="fas fa-school"></i> Register School
+      </button>
+    </div>
+
+    <!-- SWITCH SCHOOL (set device to a school) -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-exchange-alt"></i> Switch Active School</div>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:14px;">Set which school this device opens when launching EduTrack. Currently: <b id="currentSchoolBadge" style="color:var(--accent2);">None</b></p>
+      <div id="switchSchoolList"></div>
+    </div>
+
+    <!-- DEVELOPER PASSWORD -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-key"></i> Developer Password</div>
+      <div class="form-group">
+        <label class="form-label">Current Password</label>
+        <div class="pwd-wrap">
+          <input type="password" class="form-control" id="curDevPwd" placeholder="Current developer password">
+          <button class="pwd-toggle" onclick="togglePwd('curDevPwd',this)"><i class="fas fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <div class="pwd-wrap">
+            <input type="password" class="form-control" id="newDevPwd" placeholder="New password">
+            <button class="pwd-toggle" onclick="togglePwd('newDevPwd',this)"><i class="fas fa-eye"></i></button>
           </div>
         </div>
-        <button class="btn btn-w btn-bl" onclick="changeDevPwd()">
-          <i class="fas fa-save"></i> Update Password
-        </button>
+        <div class="form-group">
+          <label class="form-label">Confirm</label>
+          <div class="pwd-wrap">
+            <input type="password" class="form-control" id="confDevPwd" placeholder="Confirm">
+            <button class="pwd-toggle" onclick="togglePwd('confDevPwd',this)"><i class="fas fa-eye"></i></button>
+          </div>
+        </div>
       </div>
+      <button class="btn btn-warning btn-block" onclick="changeDevPwd()">
+        <i class="fas fa-key"></i> Update Developer Password
+      </button>
     </div>
 
-    <div class="sec">
-      <div class="sec-title"><i class="fas fa-skull-crossbones"></i> Danger Zone</div>
-      <div class="dz">
-        <div class="dz-title"><i class="fas fa-exclamation-triangle"></i> Irreversible Actions</div>
-        <p style="font-size:.78rem;color:var(--muted);margin-bottom:14px;line-height:1.6;">
-          Deleting a school permanently removes all its data from Firebase &mdash;
-          students, teachers, classes, attendance and leave outs. Cannot be undone.
-        </p>
-        <div id="delWrap"></div>
-      </div>
+    <!-- DANGER ZONE -->
+    <div class="danger-zone" style="margin-bottom:40px;">
+      <div class="danger-title"><i class="fas fa-exclamation-triangle"></i> Danger Zone</div>
+      <p style="font-size:0.8rem;color:var(--muted);margin-bottom:12px;">Deleting a school permanently removes all its data from Firebase — students, teachers, classes, attendance, leave outs. This cannot be undone.</p>
+      <div id="deleteSchoolList"></div>
     </div>
 
-    <div style="text-align:center;padding:12px 0 4px;font-size:.68rem;color:var(--dim);font-family:var(--mono);">
-      EduTrack Developer Panel &middot; Powered by Mr. Saisi Nyongesa Sammy
+    <div style="text-align:center;padding:16px 0 8px;font-size:0.7rem;color:var(--muted);">
+      <i class="fas fa-code"></i> EduTrack Developer Panel · Powered by Mr. Saisi Nyongesa Sammy
     </div>
   </div>
 </div>
 
-<!-- EDIT MODAL -->
-<div class="ov" id="editOv">
-  <div class="mb">
-    <div class="mh">
-      <div class="mh-title"><i class="fas fa-edit" style="color:var(--accent2);margin-right:8px;"></i>Edit School</div>
-      <button class="mx" onclick="closeEdit()"><i class="fas fa-times"></i></button>
+<!-- EDIT SCHOOL MODAL -->
+<div id="editModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div class="modal-hdr-title">Edit School</div>
+      <button class="modal-close" onclick="closeEdit()"><i class="fas fa-times"></i></button>
     </div>
-    <input type="hidden" id="editId">
-    <div class="fg">
-      <label class="fl">School Name</label>
-      <input type="text" class="fc" id="editName" placeholder="School name">
+    <input type="hidden" id="editSchoolId">
+    <div class="form-group">
+      <label class="form-label">School Name</label>
+      <input type="text" class="form-control" id="editSchoolName" placeholder="School name">
     </div>
-    <div class="fg">
-      <label class="fl">Reset Admin Password <span style="font-weight:400;color:var(--dim);">(blank = keep current)</span></label>
-      <div class="pw">
-        <input type="password" class="fc" id="editPwd" placeholder="New admin password">
-        <button class="pe" onclick="eye('editPwd',this)"><i class="fas fa-eye"></i></button>
+    <div class="form-group">
+      <label class="form-label">Reset Admin Password <span style="font-weight:400;opacity:0.6;text-transform:none;">(leave blank to keep)</span></label>
+      <div class="pwd-wrap">
+        <input type="password" class="form-control" id="editSchoolPwd" placeholder="New admin password">
+        <button class="pwd-toggle" onclick="togglePwd('editSchoolPwd',this)"><i class="fas fa-eye"></i></button>
       </div>
     </div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-p" style="flex:1;" onclick="saveEdit()"><i class="fas fa-save"></i> Save</button>
-      <button class="btn btn-g" onclick="closeEdit()">Cancel</button>
-    </div>
+    <button class="btn btn-primary btn-block" onclick="saveEditSchool()">
+      <i class="fas fa-save"></i> Save Changes
+    </button>
   </div>
 </div>
 
 <!-- CONFIRM MODAL -->
-<div class="ov" id="confirmOv">
-  <div class="mb">
-    <div class="mh"><div class="mh-title" id="cTitle">Confirm</div></div>
-    <p id="cMsg" style="font-size:.85rem;color:var(--muted);margin-bottom:22px;line-height:1.6;white-space:pre-wrap;"></p>
+<div id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <div class="modal-hdr-title" id="confirmTitle">Confirm</div>
+    </div>
+    <p id="confirmMsg" style="font-size:0.85rem;color:var(--muted);margin-bottom:20px;line-height:1.5;"></p>
     <div style="display:flex;gap:10px;">
-      <button class="btn btn-d" onclick="doConfirm()"><i class="fas fa-check"></i> Confirm</button>
-      <button class="btn btn-g" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirmYes" onclick="doConfirm()"><i class="fas fa-check"></i> Confirm</button>
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
     </div>
   </div>
 </div>
 
 <script type="module">
-import { initializeApp, getApps, getApp }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   initializeFirestore, getFirestore,
   persistentLocalCache, persistentMultipleTabManager,
@@ -383,328 +317,385 @@ import {
   collection, writeBatch, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const FB = {
-  apiKey:"AIzaSyAnA97WKgTNl1D9KgPR6WkslIzE4wes_Qc",
-  authDomain:"register-d4674.firebaseapp.com",
-  projectId:"register-d4674",
-  storageBucket:"register-d4674.firebasestorage.app",
-  messagingSenderId:"1015267499156",
-  appId:"1:1015267499156:web:cb03874a30021adc406881",
-  measurementId:"G-WLP9YTLELR"
+// ── Firebase (same project as main app) ─────────────────────────
+const firebaseConfig = {
+  apiKey:            "AIzaSyAnA97WKgTNl1D9KgPR6WkslIzE4wes_Qc",
+  authDomain:        "register-d4674.firebaseapp.com",
+  projectId:         "register-d4674",
+  storageBucket:     "register-d4674.firebasestorage.app",
+  messagingSenderId: "1015267499156",
+  appId:             "1:1015267499156:web:cb03874a30021adc406881",
+  measurementId:     "G-WLP9YTLELR"
 };
+// Reuse existing Firebase app if already initialised (avoids "app already exists" error
+// when developer.html is opened from the same browser session as index.html)
+const fireApp = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-const app = getApps().length ? getApp() : initializeApp(FB);
 let db;
-// Correct init order: always try initializeFirestore with persistence FIRST.
-// Never call getFirestore() first — it creates memory-only instance that blocks persistent init.
 (function initDB(){
-  try{
-    db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})});
-    return;
-  }catch(e1){}
-  try{
-    db=initializeFirestore(app,{localCache:persistentLocalCache()});
-    return;
-  }catch(e2){}
-  try{
-    // Already initialized (e.g. same session as index.html) — reuse existing instance
-    db=getFirestore(app);
-    return;
-  }catch(e3){}
-  try{ db=initializeFirestore(app,{}); }
-  catch(e4){ console.error("DB init failed",e4); }
+  try {
+    // Try to get existing Firestore instance first
+    db = getFirestore(fireApp);
+  } catch(e) {
+    // No existing instance — create one with persistence
+    try {
+      db = initializeFirestore(fireApp, {
+        localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+      });
+    } catch(e2) {
+      try {
+        db = initializeFirestore(fireApp, {});
+      } catch(e3) {
+        console.error('Firestore init failed:', e3);
+      }
+    }
+  }
 })();
 
-// Lazy refs — evaluated only when called so db-undefined never crashes the module
-const C = {
-  schools:  ()       => collection(db,"schools"),
-  school:   id       => doc(db,"schools",id),
-  settings: id       => doc(db,`schools/${id}/meta`,"settings"),
-  teachers: id       => collection(db,`schools/${id}/teachers`),
-  students: id       => collection(db,`schools/${id}/students`),
-  sub:      (id,nm)  => collection(db,`schools/${id}/${nm}`),
-};
-// Verify db is usable — called before any Firestore operation
-function requireDB(){
-  if(!db) throw new Error("Firestore not initialised — reload the page");
-  return db;
-}
-const SUBS = ["meta","teachers","classes","students","attendance","leaveOuts"];
+// ── Refs ─────────────────────────────────────────────────────────
+const SCHOOLS_COL = () => collection(db, 'schools');
+const SCHOOL_DOC  = (id) => doc(db, 'schools', id);
+const SETTINGS    = (id) => doc(db, `schools/${id}/meta`, 'settings');
+const TEACHERS    = (id) => collection(db, `schools/${id}/teachers`);
+const STUDENTS    = (id) => collection(db, `schools/${id}/students`);
+const SUBCOLLS    = ['meta','teachers','classes','students','attendance','leaveOuts'];
 
+// ── localStorage helpers ──────────────────────────────────────────
 const LS = {
-  get:k   => { try{return JSON.parse(localStorage.getItem("et_"+k));}catch{return null;} },
-  set:(k,v)=> localStorage.setItem("et_"+k,JSON.stringify(v)),
-  del:k   => localStorage.removeItem("et_"+k),
+  get(k){try{return JSON.parse(localStorage.getItem('et_'+k));}catch{return null;}},
+  set(k,v){localStorage.setItem('et_'+k,JSON.stringify(v));},
+  remove(k){localStorage.removeItem('et_'+k);}
 };
 
-const PK = "devPwd", DP = "dev@EduTrack2025";
-const getPwd = () => LS.get(PK) || DP;
+// ── Developer password (stored in localStorage; change from panel) ─
+const DEV_PWD_KEY = 'devPwd';
+const DEFAULT_DEV_PWD = 'dev@EduTrack2025';
 
-let schools = [], pending = null;
+function getDevPwd(){ return LS.get(DEV_PWD_KEY) || DEFAULT_DEV_PWD; }
 
-// ── LOCK / UNLOCK ─────────────────────────────────────────────
-window.unlock = function(){
-  const v = document.getElementById("devPwdInput").value;
-  if(!v){ toast("Enter the developer password","warn"); return; }
-  if(v !== getPwd()){
-    toast("Incorrect password","err");
-    document.getElementById("devPwdInput").value="";
-    const c=document.querySelector(".lock-card");
-    if(c){
-      c.style.transition="transform .1s";
-      [0,1,2,3].forEach(i=>setTimeout(()=>c.style.transform=i%2?"translateX(6px)":"translateX(-6px)",i*80));
-      setTimeout(()=>{ c.style.transform=""; },350);
+// ── State ─────────────────────────────────────────────────────────
+let schools = [];
+let pendingConfirmFn = null;
+
+// ══════════════════════════════════════════════════════════════════
+// LOCK SCREEN
+// ══════════════════════════════════════════════════════════════════
+window.unlockPanel = function(){
+  const pwd = document.getElementById('devPwdInput').value;
+  if(pwd === getDevPwd()){
+    if(!db){
+      toast('Database failed to initialise — reload the page','error');
+      return;
     }
-    return;
+    document.getElementById('lockScreen').classList.add('hide');
+    document.getElementById('panel').style.display='block';
+    init().catch(e=>{
+      console.error('Panel init error:', e);
+      toast('Error loading panel: '+e.message,'error');
+    });
+  } else {
+    toast('Incorrect developer password','error');
+    document.getElementById('devPwdInput').value='';
   }
-  try{ requireDB(); }catch(e){ toast("Firebase not ready — reload the page","err"); return; }
-  document.getElementById("lockScreen").classList.add("hidden");
-  document.getElementById("panel").classList.add("visible");
-  startPanel().catch(e=>{ console.error("startPanel error:",e); toast("Error loading panel: "+e.message,"err"); });
 };
 
-window.lockPanel = function(){
-  document.getElementById("panel").classList.remove("visible");
-  document.getElementById("lockScreen").classList.remove("hidden");
-  document.getElementById("devPwdInput").value="";
-};
-
-// ── PANEL ──────────────────────────────────────────────────────
-async function startPanel(){
-  requireDB(); // throws clearly if Firestore failed — caught by caller
-  watchNet();
-  await loadAll();
-  refreshBadge();
-}
-
-function watchNet(){
-  const update=()=>{
-    const d=document.getElementById("sdot"); if(!d)return;
-    if(navigator.onLine){d.className="sdot";d.title="Online";}
-    else{d.className="sdot off";d.title="Offline";}
-  };
-  update();
-  window.addEventListener("online",update);
-  window.addEventListener("offline",update);
-}
-
-async function loadAll(){
-  setWrap("listWrap",ld("Loading schools…"));
+// ══════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════
+async function init(){
+  updateOnline();
+  window.addEventListener('online',  updateOnline);
+  window.addEventListener('offline', updateOnline);
   try{
-    const snap=await getDocs(C.schools());
-    schools=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.name||a.id).localeCompare(b.name||b.id));
-    renderList(); renderSwitch(); renderDel();
-    loadStats();
+    await loadSchools();
+  }catch(e){
+    console.error('loadSchools error:', e);
+    document.getElementById('schoolsList').innerHTML=
+      '<div class="empty"><i class="fas fa-exclamation-triangle"></i>'+
+      '<p style="margin-top:8px;font-size:0.82rem;">Error: '+e.message+'<br>Check Firestore rules and connection.</p></div>';
+  }
+  updateCurrentSchoolBadge();
+}
+
+function updateOnline(){
+  const dot = document.getElementById('onlineDot');
+  const txt = document.getElementById('onlineTxt');
+  if(navigator.onLine){ dot.className='dot'; txt.textContent='Online'; }
+  else { dot.className='dot off'; txt.textContent='Offline'; }
+}
+
+async function loadSchools(){
+  try{
+    const snap = await getDocs(SCHOOLS_COL());
+    schools = snap.docs.map(d=>({id:d.id,...d.data()}));
+    schools.sort((a,b)=>(a.name||a.id).localeCompare(b.name||b.id));
+    renderSchoolsList();
+    renderSwitchList();
+    renderDeleteList();
+    await loadStats();
   }catch(e){
     console.error(e);
-    setWrap("listWrap",`<div class="empty"><i class="fas fa-wifi-slash"></i><p>${navigator.onLine?"Firestore error — check rules":"You are offline"}</p></div>`);
+    document.getElementById('schoolsList').innerHTML=`<div class="empty"><p>Error loading schools. ${navigator.onLine?'Check Firestore permissions.':'You are offline.'}</p></div>`;
   }
 }
 
 async function loadStats(){
-  document.getElementById("sN").textContent=schools.length;
-  let s=0,t=0;
-  await Promise.all(schools.map(async x=>{
+  document.getElementById('statSchools').textContent = schools.length;
+  let totalStudents=0, totalTeachers=0;
+  await Promise.all(schools.map(async s=>{
     try{
-      const [ss,ts]=await Promise.all([getDocs(C.students(x.id)),getDocs(C.teachers(x.id))]);
-      s+=ss.size; t+=Math.max(0,ts.size-1);
+      const [stu,tch]=await Promise.all([getDocs(STUDENTS(s.id)),getDocs(TEACHERS(s.id))]);
+      totalStudents+=stu.size;
+      totalTeachers+=Math.max(0,tch.size-1); // exclude ADMIN
     }catch(e){}
   }));
-  document.getElementById("sStu").textContent=s;
-  document.getElementById("sTch").textContent=t;
+  document.getElementById('statStudents').textContent=totalStudents;
+  document.getElementById('statTeachers').textContent=totalTeachers;
 }
 
-// ── RENDER ─────────────────────────────────────────────────────
-function renderList(){
-  const el=document.getElementById("listWrap");
-  if(!schools.length){ el.innerHTML=empty("fa-school","No schools registered yet."); return; }
+function renderSchoolsList(){
+  const el=document.getElementById('schoolsList');
+  if(!schools.length){
+    el.innerHTML=`<div class="empty"><i class="fas fa-school"></i><p style="margin-top:8px;">No schools registered yet.</p></div>`;
+    return;
+  }
   el.innerHTML=schools.map(s=>`
-    <div class="s-row">
-      <div class="s-avatar"><i class="fas fa-school"></i></div>
-      <div class="s-info">
-        <div class="s-name">${esc(s.name||s.id)}</div>
-        <div class="s-meta">Code: ${esc(s.id)} · ${s.createdAt?.toDate?.()?.toLocaleDateString("en-KE")||"—"}</div>
+    <div class="school-item">
+      <div class="school-avatar"><i class="fas fa-school"></i></div>
+      <div class="school-info">
+        <div class="school-name">${s.name||s.id}</div>
+        <div class="school-meta">Code: <b>${s.id}</b> &nbsp;·&nbsp; Registered: ${s.createdAt?.toDate?.()?.toLocaleDateString('en-KE')||'—'}</div>
       </div>
-      <div class="s-acts">
-        <button class="btn btn-g btn-sm" onclick="openEdit('${esc(s.id)}','${esc(s.name||'')}')"><i class="fas fa-edit"></i></button>
+      <div class="school-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openEdit('${s.id}','${(s.name||'').replace(/'/g,'')}')" title="Edit"><i class="fas fa-edit"></i></button>
       </div>
-    </div>`).join("");
+    </div>`).join('');
 }
 
-function renderSwitch(){
-  const el=document.getElementById("switchWrap");
-  const cur=LS.get("currentSchoolId");
-  if(!schools.length){ el.innerHTML="<p style='font-size:.82rem;color:var(--muted);'>No schools registered.</p>"; return; }
+function renderSwitchList(){
+  const el=document.getElementById('switchSchoolList');
+  if(!schools.length){el.innerHTML=`<p style="font-size:0.82rem;color:var(--muted);">No schools registered.</p>`;return;}
+  const current=LS.get('currentSchoolId');
   el.innerHTML=schools.map(s=>`
-    <div class="sw-row">
-      <div class="sw-info"><strong>${esc(s.name||s.id)}</strong><small>${esc(s.id)}</small></div>
-      ${cur===s.id
-        ?`<span class="badge b-ok"><i class="fas fa-check"></i> Active</span>`
-        :`<button class="btn btn-c btn-sm" onclick="switchTo('${esc(s.id)}')"><i class="fas fa-sign-in-alt"></i> Select</button>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-weight:600;font-size:0.88rem;">${s.name||s.id}</div>
+        <div style="font-size:0.7rem;color:var(--muted);">Code: ${s.id}</div>
+      </div>
+      ${current===s.id
+        ? `<span class="badge badge-success"><i class="fas fa-check"></i> Active</span>`
+        : `<button class="btn btn-primary btn-sm" onclick="switchToSchool('${s.id}')"><i class="fas fa-sign-in-alt"></i> Select</button>`
       }
-    </div>`).join("");
+    </div>`).join('');
 }
 
-function renderDel(){
-  const el=document.getElementById("delWrap");
-  if(!schools.length){ el.innerHTML="<p style='font-size:.78rem;color:var(--muted);'>No schools to delete.</p>"; return; }
+function renderDeleteList(){
+  const el=document.getElementById('deleteSchoolList');
+  if(!schools.length){el.innerHTML=`<p style="font-size:0.82rem;color:var(--muted);">No schools to delete.</p>`;return;}
   el.innerHTML=schools.map(s=>`
-    <div class="dz-row">
-      <div><div style="font-weight:600;font-size:.87rem;">${esc(s.name||s.id)}</div>
-           <div style="font-size:.7rem;color:var(--muted);font-family:var(--mono);">${esc(s.id)}</div></div>
-      <button class="btn btn-d btn-sm" onclick="confirmDel('${esc(s.id)}','${esc((s.name||s.id).replace(/'/g,""))}')">
-        <i class="fas fa-trash-alt"></i> Delete
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(239,68,68,0.15);">
+      <div>
+        <div style="font-weight:600;font-size:0.88rem;">${s.name||s.id}</div>
+        <div style="font-size:0.7rem;color:var(--muted);">Code: ${s.id}</div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="confirmDeleteSchool('${s.id}','${(s.name||s.id).replace(/'/g,'')}')">
+        <i class="fas fa-trash"></i> Delete
       </button>
-    </div>`).join("");
+    </div>`).join('');
 }
 
-function refreshBadge(){
-  const el=document.getElementById("activeBadge");
-  if(el) el.textContent=LS.get("currentSchoolId")||"None";
+function updateCurrentSchoolBadge(){
+  const id=LS.get('currentSchoolId');
+  const el=document.getElementById('currentSchoolBadge');
+  if(el) el.textContent=id||'None';
 }
 
-// ── REGISTER ───────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+// REGISTER SCHOOL
+// ══════════════════════════════════════════════════════════════════
 window.registerSchool = async function(){
-  const name=v("newName"), code=v("newCode"), pwd=v("newPwd");
-  if(!name)                       {toast("Enter school name","warn");return;}
-  if(!code||code.length<3)        {toast("Code must be at least 3 characters","warn");return;}
-  if(!/^[A-Z0-9_]+$/.test(code)) {toast("Code: letters, numbers, underscores only","warn");return;}
-  if(!pwd||pwd.length<4)          {toast("Admin password must be at least 4 characters","warn");return;}
-  if(schools.find(s=>s.id===code)){toast("School code already taken","err");return;}
-  const btn=event.currentTarget; btn.disabled=true; btn.innerHTML=`<i class="fas fa-circle-notch spin"></i> Registering…`;
+  const name = document.getElementById('newSchoolName').value.trim();
+  const code = document.getElementById('newSchoolCode').value.trim();
+  const pwd  = document.getElementById('newSchoolPwd').value.trim();
+  if(!name)                             { toast('Enter school name','error'); return; }
+  if(!code||code.length<3)              { toast('Code must be at least 3 characters','error'); return; }
+  if(!/^[A-Z0-9_]+$/.test(code))       { toast('Code: letters, numbers, underscores only','error'); return; }
+  if(!pwd||pwd.length<4)                { toast('Admin password must be at least 4 characters','error'); return; }
+  if(schools.find(s=>s.id===code))      { toast('School code already exists — choose another','error'); return; }
+
   try{
-    await setDoc(C.school(code),{name,createdAt:serverTimestamp()});
-    await setDoc(C.settings(code),{schoolName:name,schoolMotto:"",adminPassword:pwd,
-      termSettings:{name:"",start:"",end:""},schoolDays:["monday","tuesday","wednesday","thursday","friday"],
-      updatedAt:serverTimestamp()});
-    await setDoc(doc(db,`schools/${code}/teachers`,"ADMIN"),
-      {name:"Administrator",role:"admin",pwd,class:"",stream:"",updatedAt:serverTimestamp()});
-    ["newName","newCode","newPwd"].forEach(id=>document.getElementById(id).value="");
-    toast(`"${name}" registered!`,"ok");
-    await loadAll();
-  }catch(e){ console.error(e); toast(navigator.onLine?"Error — check Firestore rules":"Offline","err"); }
-  finally{ btn.disabled=false; btn.innerHTML=`<i class="fas fa-school"></i> Register School`; }
-};
-
-// ── SWITCH ─────────────────────────────────────────────────────
-window.switchTo = function(id){
-  const s=schools.find(x=>x.id===id);
-  confirm_("Switch Active School",
-    `Set this device to use "${s?.name||id}"?
-
-EduTrack will load this school on next open.`,
-    ()=>{
-      const old=LS.get("currentSchoolId");
-      if(old&&old!==id) LS.del("rememberedTeacher_"+old);
-      LS.set("currentSchoolId",id);
-      toast(`Switched to "${s?.name||id}"`,"ok");
-      refreshBadge(); renderSwitch();
+    // 1. School registry entry
+    await setDoc(SCHOOL_DOC(code), { name, createdAt: serverTimestamp() });
+    // 2. School settings (with admin password)
+    await setDoc(SETTINGS(code), {
+      schoolName:name, schoolMotto:'', adminPassword:pwd,
+      termSettings:{name:'',start:'',end:''},
+      schoolDays:['monday','tuesday','wednesday','thursday','friday'],
+      updatedAt: serverTimestamp()
     });
+    // 3. Default ADMIN teacher
+    await setDoc(doc(db,`schools/${code}/teachers`,'ADMIN'), {
+      name:'Administrator', role:'admin', pwd, class:'', stream:'',
+      updatedAt: serverTimestamp()
+    });
+    document.getElementById('newSchoolName').value='';
+    document.getElementById('newSchoolCode').value='';
+    document.getElementById('newSchoolPwd').value='';
+    toast(`"${name}" registered successfully!`,'success');
+    await loadSchools();
+  }catch(e){
+    console.error(e);
+    toast(navigator.onLine?'Error registering school — check Firestore rules':'You are offline','error');
+  }
 };
 
-// ── EDIT ───────────────────────────────────────────────────────
-window.openEdit = function(id,name){
-  document.getElementById("editId").value=id;
-  document.getElementById("editName").value=name;
-  document.getElementById("editPwd").value="";
-  document.getElementById("editOv").classList.add("show");
-};
-window.closeEdit = ()=>document.getElementById("editOv").classList.remove("show");
-
-window.saveEdit = async function(){
-  const id=v("editId"), name=v("editName"), pwd=v("editPwd");
-  if(!name){toast("Enter school name","warn");return;}
-  const btn=event.currentTarget; btn.disabled=true; btn.innerHTML=`<i class="fas fa-circle-notch spin"></i> Saving…`;
-  try{
-    await setDoc(C.school(id),{name,updatedAt:serverTimestamp()},{merge:true});
-    await setDoc(C.settings(id),{schoolName:name,updatedAt:serverTimestamp()},{merge:true});
-    if(pwd){
-      if(pwd.length<4){toast("Password must be at least 4 characters","warn");return;}
-      await setDoc(C.settings(id),{adminPassword:pwd,updatedAt:serverTimestamp()},{merge:true});
-      await setDoc(doc(db,`schools/${id}/teachers`,"ADMIN"),{pwd,updatedAt:serverTimestamp()},{merge:true});
+// ══════════════════════════════════════════════════════════════════
+// SWITCH ACTIVE SCHOOL (sets device localStorage)
+// ══════════════════════════════════════════════════════════════════
+window.switchToSchool = function(schoolId){
+  const school = schools.find(s=>s.id===schoolId);
+  openConfirm(
+    'Switch Active School',
+    `Set this device to use "${school?.name||schoolId}"? The EduTrack app will load this school on next open.`,
+    ()=>{
+      LS.set('currentSchoolId', schoolId);
+      // Clear any remembered teacher from the old school
+      const old=LS.get('currentSchoolId');
+      if(old && old!==schoolId) LS.remove('rememberedTeacher_'+old);
+      toast(`Switched to "${school?.name||schoolId}"! Open EduTrack to continue.`,'success');
+      updateCurrentSchoolBadge();
+      renderSwitchList();
     }
-    closeEdit(); toast("School updated!","ok"); await loadAll();
-  }catch(e){ console.error(e); toast("Error updating school","err"); }
-  finally{ btn.disabled=false; btn.innerHTML=`<i class="fas fa-save"></i> Save`; }
+  );
 };
 
-// ── DELETE ─────────────────────────────────────────────────────
-window.confirmDel = function(id,name){
-  confirm_("Delete School",
-    `⚠️ Permanently delete "${name}" (${id}) and ALL its data?
-
-- Students
-- Teachers
-- Classes
-- Attendance records
-- Leave outs
-
-This CANNOT be undone.`,
-    ()=>doDelete(id,name));
+// ══════════════════════════════════════════════════════════════════
+// EDIT SCHOOL
+// ══════════════════════════════════════════════════════════════════
+window.openEdit = function(id, name){
+  document.getElementById('editSchoolId').value=id;
+  document.getElementById('editSchoolName').value=name;
+  document.getElementById('editSchoolPwd').value='';
+  document.getElementById('editModal').classList.add('show');
 };
+window.closeEdit = function(){ document.getElementById('editModal').classList.remove('show'); };
 
-async function doDelete(id,name){
-  toast("Deleting all data…","warn");
+window.saveEditSchool = async function(){
+  const id   = document.getElementById('editSchoolId').value;
+  const name = document.getElementById('editSchoolName').value.trim();
+  const pwd  = document.getElementById('editSchoolPwd').value.trim();
+  if(!name){ toast('Enter a school name','error'); return; }
   try{
-    const batch=writeBatch(db);
-    for(const sub of SUBS){ const snap=await getDocs(C.sub(id,sub)); snap.docs.forEach(d=>batch.delete(d.ref)); }
-    batch.delete(C.school(id));
-    await batch.commit();
-    if(LS.get("currentSchoolId")===id){ LS.del("currentSchoolId"); LS.del("rememberedTeacher_"+id); refreshBadge(); }
-    toast(`"${name}" deleted`,"ok"); await loadAll();
-  }catch(e){ console.error(e); toast("Error deleting — check connection","err"); }
-}
-
-// ── DEV PASSWORD ───────────────────────────────────────────────
-window.changeDevPwd = function(){
-  const cur=v("curPwd"), nw=v("np"), co=v("cp");
-  if(cur!==getPwd()) {toast("Current password incorrect","err"); return;}
-  if(nw.length<6)    {toast("New password must be at least 6 characters","warn"); return;}
-  if(nw!==co)        {toast("Passwords do not match","warn"); return;}
-  LS.set(PK,nw);
-  ["curPwd","np","cp"].forEach(id=>document.getElementById(id).value="");
-  toast("Developer password updated!","ok");
+    // Update registry name
+    await setDoc(SCHOOL_DOC(id), { name, updatedAt: serverTimestamp() }, { merge: true });
+    // Update settings name
+    await setDoc(SETTINGS(id), { schoolName: name, updatedAt: serverTimestamp() }, { merge: true });
+    // Reset admin password if provided
+    if(pwd){
+      if(pwd.length<4){ toast('Password must be at least 4 characters','error'); return; }
+      await setDoc(SETTINGS(id), { adminPassword: pwd, updatedAt: serverTimestamp() }, { merge: true });
+      // Also update ADMIN teacher password
+      await setDoc(doc(db,`schools/${id}/teachers`,'ADMIN'), { pwd, updatedAt: serverTimestamp() }, { merge: true });
+    }
+    closeEdit();
+    toast('School updated!','success');
+    await loadSchools();
+  }catch(e){
+    console.error(e);
+    toast('Error updating school','error');
+  }
 };
 
-// ── CONFIRM MODAL ──────────────────────────────────────────────
-function confirm_(title,msg,fn){
-  document.getElementById("cTitle").textContent=title;
-  document.getElementById("cMsg").textContent=msg;
-  pending=fn; document.getElementById("confirmOv").classList.add("show");
+// ══════════════════════════════════════════════════════════════════
+// DELETE SCHOOL (full cascade wipe of all subcollections)
+// ══════════════════════════════════════════════════════════════════
+window.confirmDeleteSchool = function(id, name){
+  openConfirm(
+    'Delete School',
+    `⚠️ Permanently delete "${name}" (${id}) and ALL its data — students, teachers, classes, attendance, leave outs? This CANNOT be undone.`,
+    () => deleteSchool(id, name)
+  );
+};
+
+async function deleteSchool(id, name){
+  toast('Deleting school data...','warning');
+  try{
+    const batch = writeBatch(db);
+    // Delete all subcollection docs
+    for(const sub of SUBCOLLS){
+      const col=collection(db,`schools/${id}/${sub}`);
+      const snap=await getDocs(col);
+      snap.docs.forEach(d=>batch.delete(d.ref));
+    }
+    // Delete school registry doc
+    batch.delete(SCHOOL_DOC(id));
+    await batch.commit();
+    // If this was the active school on this device, clear it
+    if(LS.get('currentSchoolId')===id){
+      LS.remove('currentSchoolId');
+      LS.remove('rememberedTeacher_'+id);
+      updateCurrentSchoolBadge();
+    }
+    toast(`"${name}" deleted permanently`,'success');
+    await loadSchools();
+  }catch(e){
+    console.error(e);
+    toast('Error deleting school — check connection','error');
+  }
 }
-function closeConfirm(){ document.getElementById("confirmOv").classList.remove("show"); pending=null; }
-window.doConfirm = ()=>{ if(pending){pending();pending=null;} closeConfirm(); };
+
+// ══════════════════════════════════════════════════════════════════
+// DEVELOPER PASSWORD CHANGE
+// ══════════════════════════════════════════════════════════════════
+window.changeDevPwd = function(){
+  const cur  = document.getElementById('curDevPwd').value;
+  const nw   = document.getElementById('newDevPwd').value;
+  const conf = document.getElementById('confDevPwd').value;
+  if(cur !== getDevPwd()){ toast('Current password incorrect','error'); return; }
+  if(nw.length<6){ toast('New password must be at least 6 characters','error'); return; }
+  if(nw!==conf){ toast('Passwords do not match','error'); return; }
+  LS.set(DEV_PWD_KEY, nw);
+  document.getElementById('curDevPwd').value='';
+  document.getElementById('newDevPwd').value='';
+  document.getElementById('confDevPwd').value='';
+  toast('Developer password updated!','success');
+};
+
+// ══════════════════════════════════════════════════════════════════
+// CONFIRM MODAL
+// ══════════════════════════════════════════════════════════════════
+function openConfirm(title, msg, fn){
+  document.getElementById('confirmTitle').textContent=title;
+  document.getElementById('confirmMsg').textContent=msg;
+  pendingConfirmFn=fn;
+  document.getElementById('confirmModal').classList.add('show');
+}
+function closeConfirm(){
+  document.getElementById('confirmModal').classList.remove('show');
+  pendingConfirmFn=null;
+}
+window.doConfirm = function(){ if(pendingConfirmFn){ pendingConfirmFn(); pendingConfirmFn=null; } closeConfirm(); };
 window.closeConfirm = closeConfirm;
 
-["editOv","confirmOv"].forEach(id=>{
-  document.getElementById(id).addEventListener("click",e=>{ if(e.target.id===id) document.getElementById(id).classList.remove("show"); });
-});
+// Close modal on overlay click
+document.getElementById('confirmModal').addEventListener('click', e=>{ if(e.target===document.getElementById('confirmModal')) closeConfirm(); });
+document.getElementById('editModal').addEventListener('click',   e=>{ if(e.target===document.getElementById('editModal'))   closeEdit(); });
 
-// ── UTILITIES ──────────────────────────────────────────────────
-window.eye = function(id,btn){
-  const el=document.getElementById(id); if(!el)return;
-  const show=el.type==="password";
-  el.type=show?"text":"password";
-  btn.innerHTML=`<i class="fas fa-eye${show?"-slash":""}"></i>`;
+// ══════════════════════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════════════════════
+window.togglePwd = function(id,btn){
+  const el=document.getElementById(id); if(!el) return;
+  const show=el.type==='password';
+  el.type=show?'text':'password';
+  btn.innerHTML=`<i class="fas fa-eye${show?'-slash':''}"></i>`;
 };
 
-function toast(msg,type=""){
-  const t=document.getElementById("toast");
-  t.textContent=msg; t.className="show"+(type?" "+type:"");
-  clearTimeout(t._t); t._t=setTimeout(()=>{t.className="";},3000);
-}
-function esc(s){
-  const m={"&":"&#38;","<":"&#60;",">":"&#62;","\"":" &#34;","\'":"&#39;"};
-  return String(s||"").replace(/[&<>"\']/g,c=>m[c]||c);
-}[c])); }
-function v(id){ return (document.getElementById(id)?.value||"").trim(); }
-function ld(msg){ return `<div class="ld"><i class="fas fa-circle-notch spin"></i> ${msg}</div>`; }
-function empty(icon,msg){ return `<div class="empty"><i class="fas ${icon}"></i><p>${msg}</p></div>`; }
-function setWrap(id,html){ const el=document.getElementById(id); if(el) el.innerHTML=html; }
-
-// ── SERVICE WORKER ─────────────────────────────────────────────
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("./dev-sw.js").catch(()=>{});
+function toast(msg,type=''){
+  const t=document.getElementById('devToast');
+  t.textContent=msg; t.className='show'+(type?' '+type:'');
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>{ t.className=''; }, 3000);
 }
 </script>
 </body>
